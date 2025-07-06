@@ -3,7 +3,6 @@ import axios from "axios";
 import "./Translator.css"; // Reusing same styles
 import jsPDF from "jspdf";
 
-
 const PdfTranslator = () => {
   const [file, setFile] = useState(null);
   const [translatedText, setTranslatedText] = useState("");
@@ -11,12 +10,13 @@ const PdfTranslator = () => {
   const [loading, setLoading] = useState(false);
 
   const handleDownloadPDF = () => {
-  const doc = new jsPDF();
-  const lines = doc.splitTextToSize(translatedText, 180); // wrap text
-  doc.text(lines, 15, 20);
-  doc.save("translated_output.pdf");
-};
-
+    const doc = new jsPDF();
+    const lines = doc.splitTextToSize(translatedText, 180); // wrap text
+    doc.text(lines, 15, 20);
+    const fileName = `translated_to_${targetLanguage}_${Date.now()}.pdf`;
+    doc.save(fileName);
+    alert(`PDF downloaded as ${fileName}`);
+  };
 
   const handleUpload = async () => {
     if (!file) return alert("Upload a PDF file first!");
@@ -26,11 +26,15 @@ const PdfTranslator = () => {
     formData.append("targetLanguage", targetLanguage);
 
     try {
-      const res = await axios.post("http://localhost:5000/translate-pdf", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        "http://localhost:5000/translate-pdf",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       setTranslatedText(res.data.translatedText);
     } catch (err) {
       console.error("Upload/Translation error:", err);
@@ -76,6 +80,14 @@ const PdfTranslator = () => {
           <div className="translator-output">
             <div className="translator-label">📄 Translated Output:</div>
             <pre>{translatedText}</pre>
+
+            <button
+              className="translator-button"
+              style={{ marginTop: "1rem" }}
+              onClick={handleDownloadPDF}
+            >
+              📥 Download as PDF
+            </button>
           </div>
         )}
       </div>
