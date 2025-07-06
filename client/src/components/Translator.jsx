@@ -3,7 +3,6 @@ import axios from "axios";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import "./Translator.css";
 
 const Translator = () => {
   const [inputText, setInputText] = useState("");
@@ -11,26 +10,22 @@ const Translator = () => {
   const [tone, setTone] = useState("casual");
   const [translatedText, setTranslatedText] = useState("");
   const [loading, setLoading] = useState(false);
-  // Below your existing imports
-  const MAX_CHAR_LIMIT = 200; // Roughly 2-3 lines
 
-  // 🔊 Text-to-Speech
+  const MAX_CHAR_LIMIT = 200;
+
   const speakText = (text) => {
     if (!text) return;
-
-    // Limit to first N characters
     const truncated = text.slice(0, MAX_CHAR_LIMIT);
-
     const utterance = new SpeechSynthesisUtterance(truncated);
     const langMap = {
       French: "fr-FR",
       Spanish: "es-ES",
       Hindi: "hi-IN",
       German: "de-DE",
+      Japanese: "ja-JP",
+      Arabic: "ar-SA",
     };
     utterance.lang = langMap[targetLanguage] || "en-US";
-
-    // Stop any ongoing speech before starting
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   };
@@ -54,7 +49,6 @@ const Translator = () => {
       alert("Sorry, your browser doesn’t support speech recognition.");
       return;
     }
-    console.log("🎙️ Started Listening...");
     SpeechRecognition.startListening({
       continuous: true,
       language: "en-US",
@@ -62,16 +56,13 @@ const Translator = () => {
   };
 
   const handleStop = () => {
-    console.log("🛑 Stopped Listening");
     SpeechRecognition.stopListening();
     setTimeout(() => {
-      console.log("📝 Final Transcript:", transcript);
       setInputText(transcript);
     }, 500);
   };
 
   const handleTranslate = async () => {
-    console.log("⚙️ Translating:", inputText);
     if (!inputText.trim()) {
       alert("Enter some text!");
       return;
@@ -83,10 +74,9 @@ const Translator = () => {
         targetLanguage,
         tone,
       });
-      console.log("✅ Translated:", res.data.translatedText);
       setTranslatedText(res.data.translatedText);
     } catch (err) {
-      console.error("❌ Translation failed:", err);
+      console.error("Translation failed:", err);
       alert("Translation failed.");
     } finally {
       setLoading(false);
@@ -94,21 +84,33 @@ const Translator = () => {
   };
 
   return (
-    <div className="translator-container">
-      <div className="translator-box">
-        <h1 className="translator-title">🌍 LinguaGenie X</h1>
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat text-white flex justify-center items-center p-4 relative"
+      style={{ backgroundImage: "url('/purple.jpg')" }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
+
+      {/* Card */}
+      <div className="relative w-full max-w-3xl bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl shadow-xl px-6 py-8 z-10">
+        {/* Glow ring */}
+        <div className="absolute inset-0 z-[-1] border-2 border-purple-600 blur-md opacity-40 rounded-3xl pointer-events-none" />
+
+        <h1 className="text-purple-400 text-3xl font-bold mb-6 text-center">
+          🌍 LinguaGenie X - Voice & Text Translator
+        </h1>
 
         <textarea
-          className="translator-textarea"
+          className="w-full p-4 rounded-lg bg-zinc-800 border border-zinc-700 text-white resize-none mb-6 focus:outline-none focus:ring-2 focus:ring-purple-500"
           rows="5"
           placeholder="Enter something to translate..."
           value={inputText || transcript}
           onChange={(e) => setInputText(e.target.value)}
         />
 
-        <div style={{ display: "flex", gap: "1rem" }}>
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <select
-            className="translator-select"
+            className="flex-1 p-3 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={targetLanguage}
             onChange={(e) => setTargetLanguage(e.target.value)}
           >
@@ -116,10 +118,13 @@ const Translator = () => {
             <option>Hindi</option>
             <option>Spanish</option>
             <option>German</option>
+            <option>Bengali</option>
+            <option>Japanese</option>
+            <option>Arabic</option>
           </select>
 
           <select
-            className="translator-select"
+            className="flex-1 p-3 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={tone}
             onChange={(e) => setTone(e.target.value)}
           >
@@ -129,48 +134,61 @@ const Translator = () => {
           </select>
         </div>
 
-        <div className="translator-button-group">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <button
-            className="translator-button"
+            className="flex-1 py-3 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 hover:brightness-110 transition-all"
             onClick={handleListen}
             disabled={listening}
           >
             🎤 Start Listening
           </button>
           <button
-            className="translator-button mic"
+            className="flex-1 py-3 bg-gray-700 border border-gray-500 rounded-lg font-bold hover:bg-gray-600"
             onClick={handleStop}
             disabled={!listening}
           >
             🛑 Stop
           </button>
-          <button className="translator-button" onClick={handleTranslate}>
+          <button
+            className="flex-1 py-3 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 hover:brightness-110 transition-all"
+            onClick={handleTranslate}
+          >
             {loading ? "Translating..." : "🔁 Translate"}
           </button>
         </div>
+
         {listening && (
-          <div className="waveform">
-            <div className="waveform-bar"></div>
-            <div className="waveform-bar"></div>
-            <div className="waveform-bar"></div>
-            <div className="waveform-bar"></div>
-            <div className="waveform-bar"></div>
+          <div className="flex justify-center items-end gap-1 h-8 mb-4">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="w-1 bg-purple-500 rounded animate-pulse"
+                style={{ animationDelay: `${i * 100}ms` }}
+              />
+            ))}
           </div>
         )}
 
         {translatedText && (
-          <div className="translator-output">
-            <div className="translator-label">Translated:</div>
-            <p>{translatedText}</p>
+          <div className="mt-4 bg-white/5 border border-white/10 p-6 rounded-2xl shadow-inner max-h-[300px] overflow-y-auto">
+            <div className="text-purple-300 font-semibold mb-3 text-lg">
+              🧠 Translated Output:
+            </div>
+            <p className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-purple-100">
+              {translatedText}
+            </p>
 
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+            <div className="flex gap-4 mt-6">
               <button
-                className="translator-button"
+                className="flex-1 py-2 rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-500 hover:brightness-110"
                 onClick={() => speakText(translatedText)}
               >
                 🔊 Speak it
               </button>
-              <button className="translator-button mic" onClick={stopSpeech}>
+              <button
+                className="flex-1 py-2 bg-gray-700 border border-gray-500 rounded-lg hover:bg-gray-600 font-semibold"
+                onClick={stopSpeech}
+              >
                 🛑 Stop Speech
               </button>
             </div>
