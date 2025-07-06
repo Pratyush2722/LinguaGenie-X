@@ -8,9 +8,8 @@ const SignIn = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Your login logic here
     console.log("Logging in with", email, password);
-    navigate("/home"); // Redirect after sign in
+    navigate("/home");
   };
 
   return (
