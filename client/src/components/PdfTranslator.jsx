@@ -25,7 +25,7 @@ const PdfTranslator = () => {
     formData.append("targetLanguage", targetLanguage);
 
     try {
-      const res = await axios.post("http://localhost:5000/translate-pdf", formData, {
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/translate-pdf`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setTranslatedText(res.data.translatedText);

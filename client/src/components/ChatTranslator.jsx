@@ -5,7 +5,10 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import { HiSpeakerWave } from "react-icons/hi2";
 
-const socket = io("http://localhost:5000");
+const socket = io(`https://linguagenie-x.onrender.com`);
+
+// const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000");
+
 
 export default function ConversationTranslator() {
   const { transcript, listening, resetTranscript } = useSpeechRecognition();

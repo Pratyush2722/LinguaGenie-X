@@ -69,7 +69,7 @@ const Translator = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/translate", {
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/translate`, {
         inputText,
         targetLanguage,
         tone,
